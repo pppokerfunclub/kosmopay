@@ -1,0 +1,1 @@
+export { PrivacyTypeSwitcher } from "./PrivacyTypeSwitcher";

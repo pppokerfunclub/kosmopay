@@ -1,0 +1,5 @@
+export { HomePage } from "./HomePage";
+export { BuyProductPage } from "./BuyProductPage";
+export { AboutUsPage } from "./AboutUsPage";
+export { SupportPage } from "./SupportPage";
+export { PaymentSuccessPage } from "./PaymentSuccessPage";

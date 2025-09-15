@@ -1,0 +1,41 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - network
+    restart: always
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+    volumes:
+      - ./server/uploads:/app/uploads
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx.conf
+      - /etc/letsencrypt/live/kosmopay.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem
+      - /etc/letsencrypt/live/kosmopay.ru/privkey.pem:/etc/nginx/ssl/privkey.pem
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge

@@ -1,0 +1,71 @@
+@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap");
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-text overflow-x-hidden font-sans;
+  }
+
+  p {
+    @apply text-base font-normal tracking-[-0.48px];
+  }
+
+  h1 {
+    @apply md:text-[64px] text-[32px] font-bold md:tracking-[-1.92px] tracking-[-1.28px] text-center;
+  }
+
+  h2 {
+    @apply md:text-[48px] text-[24px] font-bold md:tracking-[-1.44px] tracking-[-0.96px];
+  }
+
+  h3 {
+    @apply md:text-[32px] text-[24px] font-medium md:tracking-[-1px] tracking-[-0.48px] leading-[115%];
+  }
+
+  h4 {
+    @apply md:text-[24px] text-base font-medium md:tracking-[-0.72px] tracking-[-0.48px];
+  }
+}
+
+:root {
+  --text: #000000;
+  --muted: #878e9c;
+  --background: #e4e8f0;
+  --foreground: #d6dbe5;
+  --primary: #5a44e2;
+  --white: #ffffff;
+}
+
+@theme {
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-white: var(--white);
+  --color-primary: var(--primary);
+
+  --font-sans: "Geologica", sans-serif;
+}
+
+@layer utilities {
+  .primary-bg {
+    background: linear-gradient(258deg, #9675fa 1.77%, #5a44e2 101.55%);
+  }
+
+  .blue-bg {
+    background: linear-gradient(257deg, #6bd2fc 1.65%, #428bf7 90.83%);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

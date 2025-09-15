@@ -1,0 +1,9 @@
+export { TelegramCarousel } from "./TelegramCarousel";
+export { HowToBuySection } from "./HowToBuySection";
+export { BuyDiamondsSection } from "./BuyDiamondsSection";
+export { DiamondList } from "./DiamondList";
+export { BuyJettonsSection } from "./BuyJettonsSection";
+export { AboutSection } from "./AboutSection";
+export { FeedbackSection } from "./FeedbackSection";
+export { TelegramBotSection } from "./TelegramBotSection";
+export { FaqSection } from "./FaqSection";
