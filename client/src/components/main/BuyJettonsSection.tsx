@@ -21,7 +21,7 @@ export const BuyJettonsSection = ({ className }: Props) => {
         className="object-contain size-[230px] md:hidden"
       />
       <h2 className="z-1 text-white text-center md:text-left text-[32px] md:text-[48px] leading-[115%]">
-        Выбери набор алмазов PP
+        Купить жетоны можно здесь!
       </h2>
       <div className="mt-4 md:mt-0 flex flex-col-reverse md:flex-row items-center gap-4 md:gap-8 z-1 w-full md:w-auto">
         <div className="flex items-center gap-4">
