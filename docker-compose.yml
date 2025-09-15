@@ -31,8 +31,10 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx.conf
-      - /etc/letsencrypt/live/kosmopay.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem
-      - /etc/letsencrypt/live/kosmopay.ru/privkey.pem:/etc/nginx/ssl/privkey.pem
+      - /etc/letsencrypt/live/kosmopay.ru/fullchain.pem:/etc/nginx/ssl/app/fullchain.pem
+      - /etc/letsencrypt/live/kosmopay.ru/privkey.pem:/etc/nginx/ssl/app/privkey.pem
+      - /etc/letsencrypt/live/api.kosmopay.ru/fullchain.pem:/etc/nginx/ssl/api/fullchain.pem
+      - /etc/letsencrypt/live/api.kosmopay.ru/privkey.pem:/etc/nginx/ssl/api/privkey.pem
     networks:
       - network
 
