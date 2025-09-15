@@ -22,7 +22,7 @@ export const SupportPage = () => {
           </h3>
           <Link
             target="_blank"
-            to={import.meta.env.VITE_TELEGRAM_BOT_URL as string}
+            to={import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string}
             className="w-full"
           >
             <Button size={"lg"} variant={"white"} className="w-full">

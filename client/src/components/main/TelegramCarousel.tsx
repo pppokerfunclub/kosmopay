@@ -70,7 +70,7 @@ export const TelegramCarousel = ({ className }: Props) => {
                     {item.description}
                   </h3>
                   <Link
-                    to={import.meta.env.VITE_TELEGRAM_BOT_URL as string}
+                    to={import.meta.env.VITE_TELEGRAM_CHANNEL_URL as string}
                     className="md:mt-12 mt-8"
                   >
                     <Button size={"lg"} variant={"white"}>

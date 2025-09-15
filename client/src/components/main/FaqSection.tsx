@@ -62,7 +62,13 @@ export const FaqSection = ({ className }: Props) => {
       content: (
         <h4 className="!font-[300] leading-[120%]">
           Напишите в тех поддержку, укажите ваш ID и обязательно прикрепите чек
-          об оплате t.me/kosmopay_support
+          об оплате{" "}
+          <Link
+            className="text-primary hover:underline"
+            to={import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string}
+          >
+            t.me/kosmopay_support
+          </Link>
         </h4>
       ),
     },

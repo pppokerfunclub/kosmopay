@@ -2,6 +2,7 @@ import React from "react";
 import { cn } from "@/lib";
 import telegram3d from "/assets/telegram-3d.png";
 import { Button } from "../ui";
+import { Link } from "react-router-dom";
 
 interface Props {
   className?: string;
@@ -41,9 +42,14 @@ export const TelegramBotSection = ({ className }: Props) => {
           </h4>
         </div>
       </div>
-      <Button variant={"white"} className="w-full">
-        Перейти в Telegram
-      </Button>
+      <Link
+        to={import.meta.env.VITE_TELEGRAM_BOT_URL as string}
+        className="w-full"
+      >
+        <Button variant={"white"} className="w-full">
+          Перейти в Telegram
+        </Button>
+      </Link>
     </section>
   );
 };
