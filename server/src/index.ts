@@ -194,6 +194,8 @@ app.post("/create", async (req, res) => {
   }
 });
 
+app.post;
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({
