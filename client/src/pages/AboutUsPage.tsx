@@ -1,4 +1,5 @@
 import StarIcon from "@/assets/icons/star.svg?react";
+import { Link } from "react-router-dom";
 
 export const AboutUsPage = () => {
   return (
@@ -37,8 +38,14 @@ export const AboutUsPage = () => {
             <h2>Связаться с нами</h2>
             <h4 className="font-normal">
               Если у вас есть вопросы или предложения, пожалуйста, свяжитесь с
-              нами через t.me/kosmopay_support, и вы получите ответ в течение 24
-              часов. Приятных покупок!
+              нами через{" "}
+              <Link
+                className="hover:underline"
+                to={import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string}
+              >
+                t.me/kosmopay_support
+              </Link>
+              , и вы получите ответ в течение 24 часов. Приятных покупок!
               <br />
               <br />
               Юридическая информация:
