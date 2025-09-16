@@ -1,6 +1,7 @@
 export { Container } from "./Container";
 export { Logo } from "./Logo";
 export { TelegramBotButton } from "./TelegramBotButton";
+export { ScrollToTop } from "./ScrollToTop";
 export * from "./header";
 export * from "./ui";
 export * from "./main";

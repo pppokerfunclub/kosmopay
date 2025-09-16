@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { PrivacyTypeSwitcher } from "@/components";
+import { PrivacyTypeSwitcher, ScrollToTop } from "@/components";
 import { cn } from "@/lib";
 
 interface Props {
@@ -50,6 +50,7 @@ export const PrivacyLayout = ({ className }: Props) => {
 
   return (
     <div className={cn("w-full flex flex-col gap-12", className)}>
+      <ScrollToTop />
       <PrivacyTypeSwitcher
         onSelect={handleSelect}
         selectedId={getCurrentPageId()}

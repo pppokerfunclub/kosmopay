@@ -8,7 +8,7 @@ import {
   type CarouselApi,
 } from "@/components";
 import telegramChannel from "/assets/telegram-channel.png";
-
+import { Link } from "react-router-dom";
 interface Props {
   className?: string;
 }
@@ -20,6 +20,7 @@ const slides = [
       "Все новости платежного сервиса и акции в нашем телеграмм канале, подписывайся",
     button: "Подписаться",
     image: telegramChannel,
+    link: import.meta.env.VITE_TELEGRAM_CHANNEL_URL as string,
   },
   {
     title: "Наш бот в Telegram",
@@ -27,6 +28,7 @@ const slides = [
       "Все новости платежного сервиса и акции в нашем телеграмм боте, подписывайся",
     button: "Перейти в бот",
     image: telegramChannel,
+    link: import.meta.env.VITE_TELEGRAM_BOT_URL as string,
   },
 ];
 
@@ -68,11 +70,15 @@ export const TelegramCarousel = ({ className }: Props) => {
                   <h3 className="text-white mt-[18px] md:mt-6">
                     {item.description}
                   </h3>
-                  <div className="md:mt-12 mt-8">
+                  <Link
+                    target="_blank"
+                    to={item.link}
+                    className="md:mt-12 mt-8"
+                  >
                     <Button size={"lg"} variant={"white"}>
                       {item.button}
                     </Button>
-                  </div>
+                  </Link>
                 </div>
                 <img
                   className="w-full md:size-[550px] object-contain mt-auto"
