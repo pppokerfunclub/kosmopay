@@ -98,7 +98,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get("/", (req, res) => {
-  res.json({ message: "Kosmopay API Server is running!" });
+  res.json({ message: "Kosmoapp API Server is running!" });
 });
 
 app.post("/create", async (req, res) => {

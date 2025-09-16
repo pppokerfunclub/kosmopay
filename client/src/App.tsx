@@ -4,7 +4,6 @@ import {
   AboutUsPage,
   BuyProductPage,
   HomePage,
-  SupportPage,
   PaymentSuccessPage,
 } from "./pages";
 import {
@@ -22,7 +21,6 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="/buy-product" element={<BuyProductPage />} />
           <Route path="/about" element={<AboutUsPage />} />
-          <Route path="/support" element={<SupportPage />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/privacy" element={<PrivacyLayout />}>
             <Route index element={<PrivacyPolicyPage />} />

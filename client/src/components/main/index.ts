@@ -7,3 +7,5 @@ export { AboutSection } from "./AboutSection";
 export { FeedbackSection } from "./FeedbackSection";
 export { TelegramBotSection } from "./TelegramBotSection";
 export { FaqSection } from "./FaqSection";
+export { PaymentSection } from "./PaymentSection";
+export { MainSection } from "./MainSection";

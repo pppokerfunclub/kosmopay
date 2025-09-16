@@ -10,7 +10,7 @@ export const AboutUsPage = () => {
           <div className="z-1 flex flex-col gap-8">
             <h2>О нас</h2>
             <h4 className="font-normal">
-              KosmoPay — это профессиональный онлайн-магазин по покупке игровых
+              Kosmoapp — это профессиональный онлайн-магазин по покупке игровых
               предметов.
               <br />
               <br />
@@ -43,7 +43,7 @@ export const AboutUsPage = () => {
                 className="hover:underline"
                 to={import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string}
               >
-                t.me/kosmopay_support
+                t.me/Kosmoapp_support
               </Link>
               , и вы получите ответ в течение 24 часов. Приятных покупок!
               <br />
