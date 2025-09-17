@@ -63,7 +63,15 @@ export const BuyProductForm = ({ className }: Props) => {
 
         if (response.status === 200) {
           toast.success("Платеж успешно создан");
-          navigate(response.data.url, { replace: true });
+
+          // Проверяем, является ли URL абсолютным
+          const url = response.data.url;
+          if (url.startsWith("http://") || url.startsWith("https://")) {
+            window.location.href = url;
+          } else {
+            const absoluteUrl = url.startsWith("/") ? url : `/${url}`;
+            navigate(absoluteUrl, { replace: true });
+          }
         } else {
           toast.error("Ошибка при покупке");
         }
