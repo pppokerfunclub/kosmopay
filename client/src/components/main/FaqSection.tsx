@@ -67,7 +67,7 @@ export const FaqSection = ({ className }: Props) => {
             className="text-primary hover:underline"
             to={import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string}
           >
-            t.me/kosmopay_support
+            t.me/kosmoapp_support
           </Link>
         </h4>
       ),
@@ -90,12 +90,12 @@ export const FaqSection = ({ className }: Props) => {
           <h4 className="!font-[300] leading-[120%]">
             Напишите в поддержку:{" "}
             <Link
-              to="https://t.me/kosmopay_support"
+              to="https://t.me/kosmoapp_support"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#6A7AFF] underline"
             >
-              t.me/kosmopay_support
+              t.me/kosmoapp_support
             </Link>
           </h4>
           <h4 className="!font-[300] leading-[120%]">

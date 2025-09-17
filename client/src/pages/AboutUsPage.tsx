@@ -43,7 +43,7 @@ export const AboutUsPage = () => {
                 className="hover:underline"
                 to={import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string}
               >
-                t.me/Kosmoapp_support
+                t.me/kosmoapp_support
               </Link>
               , и вы получите ответ в течение 24 часов. Приятных покупок!
               <br />

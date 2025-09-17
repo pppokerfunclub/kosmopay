@@ -139,7 +139,7 @@ export const BuyProductForm = ({ className }: Props) => {
               <h3>Информация о заказе:</h3>
               <div className="p-6 md:p-8 rounded-[24px] bg-white flex flex-col justify-between h-[156px] md:h-[218px]">
                 <h4 className="text-muted font-light">
-                  Pppoker user ID:{" "}
+                  PP user ID:{" "}
                   <span className="text-text font-normal">
                     {watch("userId")}
                   </span>

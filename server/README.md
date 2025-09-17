@@ -1,4 +1,4 @@
-# Kosmopay API Server
+# KosmoApp API Server
 
 Простой Express.js сервер с TypeScript для обработки POST запросов.
 
@@ -44,13 +44,13 @@ pnpm dev
 1. Соберите образ:
 
 ```bash
-docker build -t kosmopay-api .
+docker build -t kosmoapp-api .
 ```
 
 2. Запустите контейнер:
 
 ```bash
-docker run -p 3001:3001 kosmopay-api
+docker run -p 3001:3001 kosmoapp-api
 ```
 
 ### Docker Compose
