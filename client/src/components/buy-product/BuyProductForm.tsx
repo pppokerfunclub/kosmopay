@@ -22,6 +22,7 @@ export const BuyProductForm = ({ className }: Props) => {
     Partial<z.infer<typeof buyProductSchema>>
   >({});
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -54,7 +55,7 @@ export const BuyProductForm = ({ className }: Props) => {
       setCurrentStep(2);
     } else {
       const finalData = { ...formData, ...data };
-
+      setIsLoading(true);
       try {
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/create`,
@@ -64,7 +65,6 @@ export const BuyProductForm = ({ className }: Props) => {
         if (response.status === 200) {
           toast.success("Платеж успешно создан");
 
-          // Проверяем, является ли URL абсолютным
           const url = response.data.url;
           if (url.startsWith("http://") || url.startsWith("https://")) {
             window.location.href = url;
@@ -77,6 +77,8 @@ export const BuyProductForm = ({ className }: Props) => {
         }
       } catch {
         toast.error("Ошибка при покупке");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -188,8 +190,13 @@ export const BuyProductForm = ({ className }: Props) => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-12 items-center">
-            <Button size={"lg"} type="submit" onClick={handleSubmit(onSubmit)}>
-              Купить сейчас
+            <Button
+              size={"lg"}
+              type="submit"
+              onClick={handleSubmit(onSubmit)}
+              disabled={isLoading}
+            >
+              {isLoading ? "Загрузка..." : "Купить сейчас"}
             </Button>
             <h4
               className="font-light underline cursor-pointer text-[#525367]"
