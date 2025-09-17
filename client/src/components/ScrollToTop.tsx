@@ -5,7 +5,6 @@ export const ScrollToTop = () => {
   const { pathname, state } = useLocation();
 
   useEffect(() => {
-    // Если есть информация о скролле к элементу в state
     if (state?.scrollTo) {
       const timer = setTimeout(() => {
         const element = document.querySelector(state.scrollTo);
