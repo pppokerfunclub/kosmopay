@@ -5,7 +5,7 @@ export const ScrollToTop = () => {
   const { pathname, state } = useLocation();
 
   useEffect(() => {
-    // Если есть информация о скролле в state, скроллим к элементу
+    // Если есть информация о скролле к элементу в state
     if (state?.scrollTo) {
       const timer = setTimeout(() => {
         const element = document.querySelector(state.scrollTo);
@@ -14,8 +14,16 @@ export const ScrollToTop = () => {
         }
       }, 100);
       return () => clearTimeout(timer);
-    } else {
-      // Иначе скроллим наверх при смене маршрута
+    }
+    // Если есть scrollToTop или scrollY в state, скроллим наверх
+    else if (state?.scrollToTop || state?.scrollY === 0) {
+      const timer = setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    // По умолчанию скроллим наверх при смене маршрута
+    else {
       const timer = setTimeout(() => {
         window.scrollTo(0, 0);
       }, 0);

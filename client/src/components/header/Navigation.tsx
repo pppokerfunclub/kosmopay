@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   className?: string;
@@ -26,41 +26,37 @@ const data = [
 ];
 
 export const Navigation = ({ className }: Props) => {
-  const location = useLocation();
   const navigate = useNavigate();
 
   const handleAnchorClick = (href: string) => {
     if (href.startsWith("#")) {
-      // Если мы не на главной странице, сначала переходим на главную
-      if (location.pathname !== "/") {
-        navigate("/", { replace: true, state: { scrollTo: href } });
-      } else {
-        // Если уже на главной странице, просто скроллим
+      // Если мы на главной странице, просто скроллим к отделу
+      if (window.location.pathname === "/") {
         const element = document.querySelector(href);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
+      } else {
+        // Если не на главной, переходим на главную и скроллим к отделу
+        navigate("/", { state: { scrollTo: href } });
       }
+    } else {
+      // Обычные ссылки - переход на страницу с скроллом наверх
+      navigate(href);
     }
   };
 
   return (
     <nav className={cn("hidden lg:flex items-center gap-6", className)}>
-      {data.map((item) =>
-        item.href.startsWith("#") ? (
-          <button
-            key={item.label}
-            onClick={() => handleAnchorClick(item.href)}
-            className="cursor-pointer hover:text-primary transition-all"
-          >
-            <p>{item.label}</p>
-          </button>
-        ) : (
-          <Link key={item.label} to={item.href}>
-            <p>{item.label}</p>
-          </Link>
-        )
-      )}
+      {data.map((item) => (
+        <button
+          key={item.label}
+          onClick={() => handleAnchorClick(item.href)}
+          className="cursor-pointer hover:text-primary transition-all"
+        >
+          <p>{item.label}</p>
+        </button>
+      ))}
     </nav>
   );
 };

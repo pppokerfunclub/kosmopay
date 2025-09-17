@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib";
 import { motion, AnimatePresence } from "framer-motion";
 import BurgerIcon from "@/assets/icons/burger.svg?react";
@@ -29,7 +29,6 @@ const navigationData = [
 
 export const Burger = ({ className }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -38,18 +37,22 @@ export const Burger = ({ className }: Props) => {
 
   const handleAnchorClick = (href: string) => {
     if (href.startsWith("#")) {
-      // Если мы не на главной странице, сначала переходим на главную
-      if (location.pathname !== "/") {
-        navigate("/", { replace: true, state: { scrollTo: href } });
-        setIsOpen(false);
-      } else {
-        // Если уже на главной странице, просто скроллим
+      // Если мы на главной странице, просто скроллим к отделу
+      if (window.location.pathname === "/") {
         const element = document.querySelector(href);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
-          setIsOpen(false);
         }
+        setIsOpen(false);
+      } else {
+        // Если не на главной, переходим на главную и скроллим к отделу
+        navigate("/", { state: { scrollTo: href } });
+        setIsOpen(false);
       }
+    } else {
+      // Обычные ссылки - переход на страницу с скроллом наверх
+      navigate(href);
+      setIsOpen(false);
     }
   };
 

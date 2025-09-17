@@ -1,13 +1,12 @@
 import React from "react";
 import { cn } from "@/lib";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   className?: string;
 }
 
 export const FooterLinks = ({ className }: Props) => {
-  const location = useLocation();
   const navigate = useNavigate();
 
   const data = [
@@ -35,20 +34,19 @@ export const FooterLinks = ({ className }: Props) => {
 
   const handleAnchorClick = (href: string) => {
     if (href.startsWith("#")) {
-      if (location.pathname !== "/") {
-        navigate("/");
-        setTimeout(() => {
-          const element = document.querySelector(href);
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth" });
-          }
-        }, 100);
-      } else {
+      // Если мы на главной странице, просто скроллим к отделу
+      if (window.location.pathname === "/") {
         const element = document.querySelector(href);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
+      } else {
+        // Если не на главной, переходим на главную и скроллим к отделу
+        navigate("/", { state: { scrollTo: href } });
       }
+    } else {
+      // Обычные ссылки - переход на страницу с скроллом наверх
+      navigate(href);
     }
   };
 
@@ -59,25 +57,15 @@ export const FooterLinks = ({ className }: Props) => {
         className
       )}
     >
-      {data.map((item) =>
-        item.href.startsWith("#") ? (
-          <button
-            key={item.label}
-            onClick={() => handleAnchorClick(item.href)}
-            className="cursor-pointer hover:text-primary transition-all"
-          >
-            <h4 className="font-normal text-center md:text-left">
-              {item.label}
-            </h4>
-          </button>
-        ) : (
-          <Link key={item.label} to={item.href}>
-            <h4 className="font-normal text-center md:text-left">
-              {item.label}
-            </h4>
-          </Link>
-        )
-      )}
+      {data.map((item) => (
+        <button
+          key={item.label}
+          onClick={() => handleAnchorClick(item.href)}
+          className="cursor-pointer hover:text-primary transition-all"
+        >
+          <h4 className="font-normal text-center md:text-left">{item.label}</h4>
+        </button>
+      ))}
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { Button } from "../ui";
 import { productList } from "@/data";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   className?: string;
@@ -20,6 +21,7 @@ export const BuyProductForm = ({ className }: Props) => {
   const [formData, setFormData] = useState<
     Partial<z.infer<typeof buyProductSchema>>
   >({});
+  const navigate = useNavigate();
 
   const {
     register,
@@ -61,7 +63,7 @@ export const BuyProductForm = ({ className }: Props) => {
 
         if (response.status === 200) {
           toast.success("Платеж успешно создан");
-          window.open(response.data.url, "_blank");
+          navigate(response.data.url, { replace: true });
         } else {
           toast.error("Ошибка при покупке");
         }
