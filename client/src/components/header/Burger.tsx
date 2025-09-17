@@ -25,10 +25,6 @@ const navigationData = [
     label: "Магазин",
     href: "/buy-product",
   },
-  {
-    label: "Поддержка",
-    href: "/support",
-  },
 ];
 
 export const Burger = ({ className }: Props) => {
@@ -44,15 +40,8 @@ export const Burger = ({ className }: Props) => {
     if (href.startsWith("#")) {
       // Если мы не на главной странице, сначала переходим на главную
       if (location.pathname !== "/") {
-        navigate("/");
+        navigate("/", { replace: true, state: { scrollTo: href } });
         setIsOpen(false);
-        // Ждем загрузки главной страницы и затем скроллим к элементу
-        setTimeout(() => {
-          const element = document.querySelector(href);
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth" });
-          }
-        }, 100);
       } else {
         // Если уже на главной странице, просто скроллим
         const element = document.querySelector(href);

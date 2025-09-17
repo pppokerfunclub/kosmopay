@@ -137,7 +137,6 @@ app.post("/create", async (req, res) => {
       formData.append(k, v);
     }
 
-    // Отправляем запрос в GameMoney API
     const response = await axios.post(
       `${API_HOST}/invoice`,
       formData.toString(),
