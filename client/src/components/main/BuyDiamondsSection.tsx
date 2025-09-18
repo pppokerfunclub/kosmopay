@@ -10,7 +10,9 @@ interface Props {
 
 export const BuyDiamondsSection = ({ className }: Props) => {
   return (
-    <section
+    <Link
+      to="https://t.me/KosmoAppbot"
+      target="_blank"
       className={cn(
         "w-full rounded-[32px] md:p-12 p-4 blue-bg relative flex flex-col items-center md:items-start md:gap-6 overflow-hidden",
         className
@@ -26,9 +28,7 @@ export const BuyDiamondsSection = ({ className }: Props) => {
       </h2>
       <div className="mt-4 md:mt-0 flex flex-col-reverse md:flex-row items-center gap-4 md:gap-8 z-1 w-full md:w-auto">
         <div className="flex items-center gap-4">
-          <Link to="https://t.me/KosmoAppbot" target="_blank">
-            <h3 className="text-white">Подробнее</h3>
-          </Link>
+          <h3 className="text-white">Подробнее</h3>
           <BoxArrowDown className="size-9 fill-white" />
         </div>
         <div className="flex items-center gap-3 md:gap-8">
@@ -44,6 +44,6 @@ export const BuyDiamondsSection = ({ className }: Props) => {
         alt="section diamonds"
         className="hidden md:block object-contain w-full max-w-100 absolute bottom-[-100px] right-0"
       />
-    </section>
+    </Link>
   );
 };

@@ -120,7 +120,7 @@ export const FaqSection = ({ className }: Props) => {
 
   return (
     <div className={cn("flex flex-col gap-12 items-center w-full", className)}>
-      <h1>FAQ</h1>
+      <h1 className="text-center">FAQ: часто задаваемые вопросы</h1>
       <div className="w-full flex flex-col gap-6">
         {questions.map((item, index) => (
           <motion.div

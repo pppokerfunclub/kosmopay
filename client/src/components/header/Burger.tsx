@@ -25,6 +25,10 @@ const navigationData = [
     label: "Магазин",
     href: "/buy-product",
   },
+  {
+    label: "Поддержка",
+    href: import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string,
+  },
 ];
 
 export const Burger = ({ className }: Props) => {
@@ -49,6 +53,8 @@ export const Burger = ({ className }: Props) => {
         navigate("/", { state: { scrollTo: href } });
         setIsOpen(false);
       }
+    } else if (href.startsWith("https://")) {
+      window.open(href, "_blank");
     } else {
       // Обычные ссылки - переход на страницу с скроллом наверх
       navigate(href);

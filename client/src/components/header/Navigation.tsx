@@ -23,6 +23,10 @@ const data = [
     label: "Магазин",
     href: "/buy-product",
   },
+  {
+    label: "Поддержка",
+    href: import.meta.env.VITE_TELEGRAM_SUPPORT_URL as string,
+  },
 ];
 
 export const Navigation = ({ className }: Props) => {
@@ -40,6 +44,8 @@ export const Navigation = ({ className }: Props) => {
         // Если не на главной, переходим на главную и скроллим к отделу
         navigate("/", { state: { scrollTo: href } });
       }
+    } else if (href.startsWith("https://")) {
+      window.open(href, "_blank");
     } else {
       // Обычные ссылки - переход на страницу с скроллом наверх
       navigate(href);

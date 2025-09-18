@@ -4,6 +4,7 @@ import "./index.css";
 import {
   AboutUsPage,
   BuyProductPage,
+  FaqPage,
   HomePage,
   PaymentSuccessPage,
 } from "./pages";
@@ -47,6 +48,7 @@ function App() {
           <Route path="/buy-product" element={<BuyProductPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/faq" element={<FaqPage />} />
           <Route path="/privacy" element={<PrivacyLayout />}>
             <Route index element={<PrivacyPolicyPage />} />
             <Route path="public-offer" element={<PublicOfferPage />} />

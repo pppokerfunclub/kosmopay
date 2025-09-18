@@ -16,7 +16,7 @@ export const FooterLinks = ({ className }: Props) => {
     },
     {
       label: "FAQ",
-      href: "#faq",
+      href: "/faq",
     },
     {
       label: "Политика конфиденциальности",

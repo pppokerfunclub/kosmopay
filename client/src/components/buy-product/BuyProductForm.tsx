@@ -44,13 +44,13 @@ export const BuyProductForm = ({ className }: Props) => {
   const onSubmit = async (data: z.infer<typeof buyProductSchema>) => {
     if (currentStep === 1) {
       const selectedProduct = productList.find((p) => p.id === data.productId);
-      if (selectedProduct && selectedProduct.quantity) {
-        setValue("amount", selectedProduct.quantity);
+      if (selectedProduct && selectedProduct.price) {
+        setValue("amount", selectedProduct.price);
       }
 
       setFormData({
         ...data,
-        amount: selectedProduct?.quantity || data.amount,
+        amount: selectedProduct?.price || data.amount,
       });
       setCurrentStep(2);
     } else {

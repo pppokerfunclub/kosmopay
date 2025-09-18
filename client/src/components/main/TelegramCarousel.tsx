@@ -89,12 +89,13 @@ export const TelegramCarousel = ({ className }: Props) => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="flex items-center gap-6 absolute left-1/2 -translate-x-1/2 bottom-8">
+        <div className="z-1 flex items-center gap-6 absolute left-1/2 -translate-x-1/2 bottom-8">
           {Array.from({ length: count }).map((_, index) => (
-            <div
+            <button
+              onClick={() => api?.scrollTo(index)}
               key={index}
               className={cn(
-                "size-2 rounded-full w-25",
+                "cursor-pointer size-2 rounded-full w-25",
                 current === index ? "bg-white" : "bg-white/20"
               )}
             />
