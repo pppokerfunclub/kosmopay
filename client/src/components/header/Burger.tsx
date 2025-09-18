@@ -8,52 +8,78 @@ interface Props {
   className?: string;
 }
 
-const navigationData = [
-  {
-    label: "Как купить",
-    href: "#how-to-buy",
-  },
-  {
-    label: "Каталог",
-    href: "#catalog",
-  },
-  {
-    label: "Преимущества",
-    href: "#advantages",
-  },
-  {
-    label: "Магазин",
-    href: "/buy-product",
-  },
+type NavItem = {
+  label: string;
+  href: string;          // может быть "#anchor", "/route" или "https://..."
+  redirect?: string;     // если указан — выполняем прямую переадресацию на этот URL
+  newTab?: boolean;      // открыть прямую ссылку в новой вкладке (по умолчанию false)
+};
+
+const navigationData: NavItem[] = [
+  { label: "Как купить", href: "#how-to-buy" },
+  { label: "Каталог", href: "#catalog" },
+  { label: "Преимущества", href: "#advantages" },
+  { label: "Магазин", href: "/buy-product" },
+  // Примеры (можно удалить/заменить):
+  // { label: "Внешний сайт", href: "https://example.com" },
+  // { label: "Промо", href: "/promo", redirect: "https://pay.example.com/deal", newTab: false },
 ];
 
 export const Burger = ({ className }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleMenu = () => setIsOpen((v) => !v);
+
+  const isExternalUrl = (url: string) => /^https?:\/\//i.test(url);
+
+  const closeMenu = () => setIsOpen(false);
 
   const handleAnchorClick = (href: string) => {
-    if (href.startsWith("#")) {
-      // Если мы на главной странице, просто скроллим к отделу
-      if (window.location.pathname === "/") {
-        const element = document.querySelector(href);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-        setIsOpen(false);
-      } else {
-        // Если не на главной, переходим на главную и скроллим к отделу
-        navigate("/", { state: { scrollTo: href } });
-        setIsOpen(false);
-      }
+    if (window.location.pathname === "/") {
+      const element = document.querySelector(href);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+      closeMenu();
     } else {
-      // Обычные ссылки - переход на страницу с скроллом наверх
-      navigate(href);
-      setIsOpen(false);
+      navigate("/", { state: { scrollTo: href } });
+      closeMenu();
     }
+  };
+
+  const handleDirectRedirect = (url: string, newTab?: boolean) => {
+    // Прямая переадресация (обходит роутер)
+    if (newTab) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else {
+      window.location.assign(url);
+    }
+    closeMenu();
+  };
+
+  const handleNavClick = (item: NavItem) => {
+    const { href, redirect, newTab } = item;
+
+    // 1) Если задан redirect — всегда прямой редирект
+    if (redirect) {
+      handleDirectRedirect(redirect, newTab);
+      return;
+    }
+
+    // 2) Абсолютные URL — прямой переход
+    if (isExternalUrl(href)) {
+      handleDirectRedirect(href, newTab);
+      return;
+    }
+
+    // 3) Якоря
+    if (href.startsWith("#")) {
+      handleAnchorClick(href);
+      return;
+    }
+
+    // 4) Внутренние маршруты
+    navigate(href);
+    closeMenu();
   };
 
   useEffect(() => {
@@ -62,7 +88,6 @@ export const Burger = ({ className }: Props) => {
     } else {
       document.body.style.overflow = "unset";
     }
-
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -71,10 +96,7 @@ export const Burger = ({ className }: Props) => {
   return (
     <div className={cn(className)}>
       <button onClick={toggleMenu} className="p-2">
-        <motion.div
-          animate={{ rotate: isOpen ? 90 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <motion.div animate={{ rotate: isOpen ? 90 : 0 }} transition={{ duration: 0.3 }}>
           <BurgerIcon className="w-9" />
         </motion.div>
       </button>
@@ -103,54 +125,60 @@ export const Burger = ({ className }: Props) => {
                   <button
                     onClick={toggleMenu}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-label="Закрыть меню"
                   >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
                 <div className="flex-1 p-6">
                   <nav className="flex flex-col gap-4">
-                    {navigationData.map((item, index) => (
-                      <motion.div
-                        key={item.label}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        {item.href.startsWith("#") ? (
+                    {navigationData.map((item, index) => {
+                      const isExternal = item.redirect ? true : isExternalUrl(item.href);
+                      const isAnchor = item.href.startsWith("#");
+                      const isInternalRoute = !isExternal && !isAnchor;
+
+                      return (
+                        <motion.div
+                          key={item.label}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          {/* Для единообразия клика всё ведём через handleNavClick */}
                           <button
-                            onClick={() => handleAnchorClick(item.href)}
+                            onClick={() => handleNavClick(item)}
                             className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium"
                           >
                             {item.label}
                           </button>
-                        ) : (
-                          <Link
-                            to={item.href}
-                            onClick={() => setIsOpen(false)}
-                            className="block w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium"
-                          >
-                            {item.label}
-                          </Link>
-                        )}
-                      </motion.div>
-                    ))}
+
+                          {/* Если хочется "правильной" семантики для внутренних маршрутов:
+                              можно заменить на <Link ...>, но тогда внешние/redirect всё равно через button */}
+                          {/* {isInternalRoute ? (
+                            <Link
+                              to={item.href}
+                              onClick={() => setIsOpen(false)}
+                              className="block w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium"
+                            >
+                              {item.label}
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={() => handleNavClick(item)}
+                              className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium"
+                            >
+                              {item.label}
+                            </button>
+                          )} */}
+                        </motion.div>
+                      );
+                    })}
                   </nav>
                 </div>
 
-                {/* Footer */}
                 <div className="p-6 border-t">
                   <Link
                     to="/privacy"
