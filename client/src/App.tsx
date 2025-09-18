@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import "./index.css";
 import {
   AboutUsPage,
@@ -13,9 +14,33 @@ import {
 } from "./pages/privacy";
 import { BaseLayout, PrivacyLayout } from "./layouts";
 
+// Компонент для автоматического скролла наверх при переходах
+const ScrollToTop = () => {
+  const { pathname, state } = useLocation();
+
+  useEffect(() => {
+    // Если есть информация о скролле к элементу в state
+    if (state?.scrollTo) {
+      const timer = setTimeout(() => {
+        const element = document.querySelector(state.scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      // По умолчанию скроллим наверх при смене маршрута
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, state]);
+
+  return null;
+};
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<BaseLayout />}>
           <Route index element={<HomePage />} />

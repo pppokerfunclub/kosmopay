@@ -2,6 +2,7 @@ import React from "react";
 import { cn } from "@/lib";
 import BoxArrowDown from "@/assets/icons/box-arrow-down.svg?react";
 import sectionDiamonds from "/assets/section-diamonds.png";
+import { Link } from "react-router-dom";
 
 interface Props {
   className?: string;
@@ -25,7 +26,9 @@ export const BuyDiamondsSection = ({ className }: Props) => {
       </h2>
       <div className="mt-4 md:mt-0 flex flex-col-reverse md:flex-row items-center gap-4 md:gap-8 z-1 w-full md:w-auto">
         <div className="flex items-center gap-4">
-          <h3 className="text-white">Подробнее</h3>
+          <Link to="https://t.me/KosmoAppbot" target="_blank">
+            <h3 className="text-white">Подробнее</h3>
+          </Link>
           <BoxArrowDown className="size-9 fill-white" />
         </div>
         <div className="flex items-center gap-3 md:gap-8">

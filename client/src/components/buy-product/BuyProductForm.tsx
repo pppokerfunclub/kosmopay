@@ -10,6 +10,7 @@ import { Button } from "../ui";
 import { productList } from "@/data";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   className?: string;
@@ -20,6 +21,8 @@ export const BuyProductForm = ({ className }: Props) => {
   const [formData, setFormData] = useState<
     Partial<z.infer<typeof buyProductSchema>>
   >({});
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -52,7 +55,7 @@ export const BuyProductForm = ({ className }: Props) => {
       setCurrentStep(2);
     } else {
       const finalData = { ...formData, ...data };
-
+      setIsLoading(true);
       try {
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/create`,
@@ -61,12 +64,21 @@ export const BuyProductForm = ({ className }: Props) => {
 
         if (response.status === 200) {
           toast.success("Платеж успешно создан");
-          window.open(response.data.url, "_blank");
+
+          const url = response.data.url;
+          if (url.startsWith("http://") || url.startsWith("https://")) {
+            window.location.href = url;
+          } else {
+            const absoluteUrl = url.startsWith("/") ? url : `/${url}`;
+            navigate(absoluteUrl, { replace: true });
+          }
         } else {
           toast.error("Ошибка при покупке");
         }
       } catch {
         toast.error("Ошибка при покупке");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -139,7 +151,7 @@ export const BuyProductForm = ({ className }: Props) => {
               <h3>Информация о заказе:</h3>
               <div className="p-6 md:p-8 rounded-[24px] bg-white flex flex-col justify-between h-[156px] md:h-[218px]">
                 <h4 className="text-muted font-light">
-                  Pppoker user ID:{" "}
+                  PP user ID:{" "}
                   <span className="text-text font-normal">
                     {watch("userId")}
                   </span>
@@ -178,8 +190,13 @@ export const BuyProductForm = ({ className }: Props) => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-12 items-center">
-            <Button size={"lg"} type="submit" onClick={handleSubmit(onSubmit)}>
-              Купить сейчас
+            <Button
+              size={"lg"}
+              type="submit"
+              onClick={handleSubmit(onSubmit)}
+              disabled={isLoading}
+            >
+              {isLoading ? "Загрузка..." : "Купить сейчас"}
             </Button>
             <h4
               className="font-light underline cursor-pointer text-[#525367]"

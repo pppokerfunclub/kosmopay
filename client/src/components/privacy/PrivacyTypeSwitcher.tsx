@@ -1,5 +1,4 @@
 import { cn } from "@/lib";
-import { motion } from "framer-motion";
 
 interface Props {
   className?: string;
@@ -17,38 +16,21 @@ export const PrivacyTypeSwitcher = ({
   selectedId,
   data,
 }: Props) => {
-  const selectedIndex = data.findIndex((item) => item.id === selectedId);
-
   return (
     <div
       className={cn(
-        "h-20 w-full rounded-full bg-white flex items-center relative overflow-hidden p-1",
+        "md:h-20 h-[200px] w-full rounded-3xl md:rounded-full bg-white flex flex-col md:flex-row items-center relative overflow-hidden",
         className
       )}
     >
-      {/* Анимированный фон */}
-      <motion.div
-        className="absolute rounded-full primary-bg"
-        style={{
-          width: `${100 / data.length}%`,
-          height: "100%",
-        }}
-        animate={{
-          left: `${selectedIndex * (100 / data.length)}%`,
-        }}
-        transition={{
-          type: "tween",
-          duration: 0.3,
-          ease: "easeInOut",
-        }}
-      />
-
       {data.map((item) => (
         <button
           key={item.id}
           className={cn(
-            "cursor-pointer h-full w-full rounded-full flex items-center justify-center relative z-10 transition-colors duration-200",
-            selectedId === item.id ? "text-white" : "text-text"
+            "cursor-pointer h-[80px] md:h-full w-full rounded-full flex items-center justify-center relative z-10",
+            selectedId === item.id
+              ? "text-white primary-bg"
+              : "text-text bg-transparent"
           )}
           onClick={() => onSelect?.(item.id)}
         >

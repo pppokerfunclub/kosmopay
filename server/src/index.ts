@@ -98,7 +98,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get("/", (req, res) => {
-  res.json({ message: "Kosmoapp API Server is running!" });
+  res.json({ message: "KosmoApp API Server is running!" });
 });
 
 app.post("/create", async (req, res) => {
@@ -137,7 +137,6 @@ app.post("/create", async (req, res) => {
       formData.append(k, v);
     }
 
-    // Отправляем запрос в GameMoney API
     const response = await axios.post(
       `${API_HOST}/invoice`,
       formData.toString(),
