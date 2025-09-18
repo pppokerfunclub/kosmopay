@@ -19,9 +19,9 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
 
       await bot.api.sendMessage(
         chatId,
-        `<b>Оплата успешна</b>\n\n<b>ID:</b> <code>${payment_id}</code>\n<b>Сумма:</b> ${
-          Number(amount) / 100
-        } RUB`,
+        `<b>Оплата успешна</b>\n\n<b>ID:</b> <code>${payment_id}</code>\n<b>Сумма:</b> ${Number(
+          amount
+        ).toFixed(2)} RUB`,
         { parse_mode: "HTML" }
       );
     }
