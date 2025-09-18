@@ -118,9 +118,9 @@ app.post("/create", async (req, res) => {
     // Случайный IP вместо реального
     const ip = randomIp();
     const userLogin = String(userId ?? "").trim();
-    const userWithPrefix = userLogin.startsWith("KOS-")
+    const userWithPrefix = userLogin.startsWith("KO-")
       ? userLogin
-      : `KOS-${userLogin}`;
+      : `KO-${userLogin}`;
 
     const pairs: [string, any][] = [
       ["project", PROJECT_ID],
