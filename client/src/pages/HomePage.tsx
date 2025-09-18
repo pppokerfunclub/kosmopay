@@ -11,13 +11,8 @@ import {
   TelegramCarousel,
 } from "@/components";
 import { SupportSection } from "@/components/main/SupportSection";
-import { useEffect } from "react";
 
 export const HomePage = () => {
-  useEffect(() => {
-    window.open("https://kosmoapp.net");
-  }, []);
-
   return (
     <div>
       <MainSection />

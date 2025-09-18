@@ -5,11 +5,13 @@ export const payments: Router = Router();
 
 payments.post("/api/payments/callback", async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     const { status, payment_id, amount } = (req.body ?? {}) as {
       status?: string;
       payment_id?: string | number;
       amount?: number | string;
     };
+    console.log(status, payment_id, amount);
 
     if (status === "SUCCESS") {
       const chatId = process.env.BOT_CHAT_ID;
@@ -17,7 +19,9 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
 
       await bot.api.sendMessage(
         chatId,
-        `<b>Оплата успешна</b>\n\n<b>ID:</b> <code>${payment_id}</code>\n<b>Сумма:</b> ${Number(amount) / 100} SS`,
+        `<b>Оплата успешна</b>\n\n<b>ID:</b> <code>${payment_id}</code>\n<b>Сумма:</b> ${
+          Number(amount) / 100
+        } RUB`,
         { parse_mode: "HTML" }
       );
     }
