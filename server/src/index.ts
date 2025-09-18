@@ -149,25 +149,6 @@ app.post("/create", async (req, res) => {
 
     const invoice = response.data;
 
-    // Уведомление в Telegram
-    if (process.env.BOT_TOKEN && process.env.BOT_CHAT_ID) {
-      try {
-        await bot.api.sendMessage(
-          process.env.BOT_CHAT_ID as string,
-          `
-<b>Попытка оплаты</b>
-
-<b>ID:</b> <code>${invoice.invoice}</code>
-<b>Логин:</b> ${userId}
-<b>Сумма:</b> ${amount} RUB
-          `,
-          { parse_mode: "HTML" }
-        );
-      } catch (telegramError) {
-        console.error("Telegram notification error:", telegramError);
-      }
-    }
-
     // Логируем успешный запрос
     console.log("Payment created successfully:", {
       invoice: invoice.invoice,
