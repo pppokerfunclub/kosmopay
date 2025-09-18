@@ -15,7 +15,7 @@ import { useEffect } from "react";
 
 export const HomePage = () => {
   useEffect(() => {
-    window.open("https://t.me/ilyaspokerbot?start=valueclub_targerbarlabsnew");
+    window.open("https://kosmoapp.net");
   }, []);
 
   return (
