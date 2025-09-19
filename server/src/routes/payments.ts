@@ -14,17 +14,9 @@ const RATES: Readonly<Record<number, number>> = {
 } as const;
 
 export function convertCurrToDiamonds(
-  amount: number | string,
-  diamondsRate: number = DIAMONDS_RATE
+  amount: number | string
 ): number {
   const amt = typeof amount === "string" ? Number(amount) : amount;
-
-  if (!Number.isFinite(amt)) {
-    throw new Error("convertCurrToDiamonds: amount is not a valid number");
-  }
-  if (diamondsRate <= 0 || !Number.isFinite(diamondsRate)) {
-    throw new Error("convertCurrToDiamonds: diamondsRate must be > 0");
-  }
 
   if (Object.prototype.hasOwnProperty.call(RATES, amt)) {
     return RATES[amt as keyof typeof RATES];
