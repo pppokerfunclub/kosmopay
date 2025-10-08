@@ -4,10 +4,11 @@
 
 ## Возможности
 
-- ✅ POST `/create` - создание платежей через GameMoney API
+- ✅ POST `/create` - создание платежей через Kanyon API
 - ✅ GET `/health` - проверка состояния сервера
 - ✅ GET `/` - базовый эндпоинт
-- ✅ Интеграция с GameMoney платежной системой
+- ✅ POST `/api/payments/callback` - обработка колбэков от Kanyon
+- ✅ Интеграция с Kanyon платежной системой (СБП)
 - ✅ Telegram уведомления о платежах
 - ✅ CORS поддержка
 - ✅ Безопасность с Helmet
@@ -63,25 +64,47 @@ docker-compose up --build
 
 ### POST /create
 
-Принимает POST запрос и возвращает статус "okay".
+Создает платеж через Kanyon API и возвращает QR-код для оплаты через СБП.
 
 **Запрос:**
 
 ```bash
 curl -X POST http://localhost:3001/create \
   -H "Content-Type: application/json" \
-  -d '{"test": "data"}'
+  -d '{
+    "userId": "user123",
+    "email": "user@example.com",
+    "amount": 1000
+  }'
 ```
+
+**Параметры:**
+
+- `userId` - ID пользователя (обязательно)
+- `email` - email пользователя (обязательно)
+- `amount` - сумма в рублях, минимум 1000 (обязательно)
 
 **Ответ:**
 
 ```json
 {
-  "status": "okay",
-  "message": "Request processed successfully",
-  "timestamp": "2024-01-01T12:00:00.000Z"
+  "success": true,
+  "url": "https://qr.nspk.ru/XXXXX",
+  "orderId": "12345",
+  "status": "okay"
 }
 ```
+
+### POST /api/payments/callback
+
+Обрабатывает колбэки от Kanyon о статусе платежа. Отправляет уведомления в Telegram.
+
+**Статусы:**
+
+- `SUCCESS` / `COMPLETED` - успешная оплата
+- `FAILED` - неудачная оплата
+- `CREATED` / `PENDING` - ожидание оплаты
+- `EXPIRED` - истек срок действия
 
 ### GET /health
 
@@ -102,9 +125,10 @@ curl -X POST http://localhost:3001/create \
 
 - `PORT` - порт сервера (по умолчанию: 3001)
 - `NODE_ENV` - окружение (development/production)
-- `BASE_URL` - базовый URL для success_url
-- `GAMEMONEY_PROJECT_ID` - ID проекта в GameMoney
-- `GAMEMONEY_HMAC_KEY` - ключ для подписи запросов
+- `BASE_URL` - базовый URL для callback URL
+- `KANYON_LOGIN` - логин для Kanyon API
+- `KANYON_PASSWORD` - пароль для Kanyon API
+- `KANYON_TSP_ID` - ID торгово-сервисной точки в Kanyon
 - `BOT_TOKEN` - токен Telegram бота
 - `BOT_CHAT_ID` - ID чата для уведомлений
 
