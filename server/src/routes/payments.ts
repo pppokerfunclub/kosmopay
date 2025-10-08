@@ -3,6 +3,28 @@ import { bot } from "../bot";
 
 export const payments: Router = Router();
 
+const RATES: Readonly<Record<number, number>> = {
+  1000: 750,
+  2000: 1500,
+  5000: 3900,
+  10000: 7700,
+  20000: 15500,
+  50000: 38500,
+  100000: 78000,
+} as const;
+
+export function convertCurrToDiamonds(
+  amount: number | string
+): number {
+  const amt = typeof amount === "string" ? Number(amount) : amount;
+
+  if (Object.prototype.hasOwnProperty.call(RATES, amt)) {
+    return RATES[amt as keyof typeof RATES];
+  }
+
+  return Math.floor((amt * 3) / 4);
+}
+
 payments.post("/api/payments/callback", async (req: Request, res: Response) => {
   try {
     console.log("Kanyon callback received:", req.body);
