@@ -3,8 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import axios from "axios";
-import crypto from "crypto";
-import { Bot } from "grammy";
+import { bot } from "./bot";
 import { payments } from "./routes/payments";
 
 const app = express();
@@ -12,8 +11,9 @@ const PORT = process.env.PORT || 8080;
 
 // Проверяем переменные окружения
 const requiredEnvVars = [
-  "GAMEMONEY_PROJECT_ID",
-  "GAMEMONEY_HMAC_KEY",
+  "KANYON_LOGIN",
+  "KANYON_PASSWORD",
+  "KANYON_TSP_ID",
   "BOT_TOKEN",
   "BOT_CHAT_ID",
   "BASE_URL",
@@ -29,67 +29,13 @@ if (missingVars.length > 0) {
   process.exit(1);
 }
 
-const API_HOST = "https://paygate.gamemoney.com";
-const PROJECT_ID = process.env.GAMEMONEY_PROJECT_ID as string;
-const HMAC_KEY = process.env.GAMEMONEY_HMAC_KEY as string;
+const IDENTITY_API = "https://identity.authpoint.pro/api/v1";
+const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 
-const bot = new Bot(process.env.BOT_TOKEN ?? "");
-
-function randomIp(): string {
-  return [
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256),
-  ].join(".");
-}
-
-// Построение строки для подписи
-function buildSignString(data: Record<string, any>): string {
-  const isScalar = (x: any) => !["object"].includes(typeof x) || x === null;
-
-  const recurse = (obj: any): string => {
-    if (Array.isArray(obj)) {
-      return obj
-        .map((v, i) => (isScalar(v) ? `${i}:${v};` : `${i}:${recurse(v)}`))
-        .join("");
-    } else if (typeof obj === "object" && obj !== null) {
-      return Object.keys(obj)
-        .sort()
-        .map((k) =>
-          isScalar(obj[k]) ? `${k}:${obj[k]};` : `${k}:${recurse(obj[k])};`
-        )
-        .join("");
-    } else {
-      return `${obj};`;
-    }
-  };
-
-  return recurse(data);
-}
-
-// Генерация подписи
-function generateSignature(pairs: [string, any][]): string {
-  const tree: Record<string, any> = {};
-  const buckets: Record<string, any[]> = {};
-
-  for (const [k, v] of pairs) {
-    if (k === "signature") continue;
-    if (k.endsWith("[]")) {
-      const base = k.slice(0, -2);
-      if (!buckets[base]) buckets[base] = [];
-      buckets[base].push(v);
-    } else {
-      tree[k] = v;
-    }
-  }
-  for (const base in buckets) {
-    tree[base] = buckets[base];
-  }
-
-  const signString = buildSignString(tree);
-  return crypto.createHmac("sha256", HMAC_KEY).update(signString).digest("hex");
-}
+const LOGIN = process.env.KANYON_LOGIN as string;
+const PASSWORD = process.env.KANYON_PASSWORD as string;
+const TSP_ID = process.env.KANYON_TSP_ID as string;
+const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
 // Middleware
 app.use(helmet());
@@ -108,66 +54,88 @@ app.post("/create", async (req, res) => {
     const { userId, email, amount } = req.body;
 
     // Валидация данных
-    if (!userId || !email || !amount || amount < 100) {
+    if (!userId || !email || !amount || amount < 1000) {
       return res.status(400).json({
         error: "Неверные данные",
-        message: "Требуются: userId, email, amount (минимум 100)",
+        message: "Требуются: userId, email, amount (минимум 1000)",
       });
     }
 
-    // Случайный IP вместо реального
-    const ip = randomIp();
-    const userLogin = String(userId ?? "").trim();
-    const userWithPrefix = userLogin.startsWith("KO-")
-      ? userLogin
-      : `KO-${userLogin}`;
+    // 1) Авторизация в Kanyon
+    const authResponse = await axios.post(`${IDENTITY_API}/public/login`, {
+      login: LOGIN,
+      password: PASSWORD,
+    });
 
-    const pairs: [string, any][] = [
-      ["project", PROJECT_ID],
-      ["type", "sbp"],
-      ["user", userWithPrefix],
-      ["ip", ip],
-      ["amount", amount.toString()],
-      ["success_url", `${process.env.BASE_URL}/payment/success`],
-    ];
+    const token = authResponse.data.accessToken;
+    const headers = { "Authorization-Token": token };
 
-    const signature = generateSignature(pairs);
-    pairs.push(["signature", signature]);
+    // 2) Создание заказа
+    const orderRequest = {
+      tspId: parseInt(TSP_ID),
+      paymentAmount: amount * 100,
+      orderCurrency: "RUB",
+      paymentType: "IPS",
+      description: `Пополнение аккаунта ${userId}`,
+      callbackUrl: CALLBACK_URL,
+    };
 
-    const formData = new URLSearchParams();
-    for (const [k, v] of pairs) {
-      formData.append(k, v);
-    }
-
-    const response = await axios.post(
-      `${API_HOST}/invoice`,
-      formData.toString(),
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
+    const createResponse = await axios.post(
+      `${PAYMENT_API}/order`,
+      orderRequest,
+      { headers }
     );
 
-    const invoice = response.data;
+    const orderId = createResponse.data.order.id;
+
+    // 3) Получение QR кода
+    const qrcResponse = await axios.post(
+      `${PAYMENT_API}/order/qrcData/${orderId}`,
+      {},
+      { headers }
+    );
+
+    const qrcId = qrcResponse.data.order?.qrcId;
+
+    if (!qrcId || typeof qrcId !== "string" || !qrcId.trim()) {
+      throw new Error("Не удалось получить QR код");
+    }
+
+    const qrUrl = `https://qr.nspk.ru/${qrcId.trim()}`;
 
     // Логируем успешный запрос
     console.log("Payment created successfully:", {
-      invoice: invoice.invoice,
+      orderId,
+      qrcId,
       userId,
       amount,
       timestamp: new Date().toISOString(),
     });
 
-    console.log("GameMoney response:", response.data);
+    // Отправляем уведомление в Telegram
+    await bot.api.sendMessage(
+      process.env.BOT_CHAT_ID as string,
+      `
+<b>Попытка оплаты Kanyon</b>
 
-    // Возвращаем URL для автоматического редиректа
+<b>Order ID:</b> <code>${orderId}</code>
+<b>QR ID:</b> <code>${qrcId}</code>
+<b>Логин:</b> ${userId}
+<b>Email:</b> ${email}
+<b>Сумма:</b> ${amount} RUB
+      `,
+      { parse_mode: "HTML" }
+    );
+
+    // Возвращаем URL для редиректа
     res.status(200).json({
       success: true,
-      url: invoice.data,
-      invoice: invoice.invoice,
+      url: qrUrl,
+      orderId: orderId,
       status: "okay",
     });
   } catch (error) {
-    console.error("Payment error:", error);
+    console.error("Kanyon payment error:", error);
     res.status(500).json({
       status: "error",
       message: "Ошибка платежа",
@@ -175,8 +143,6 @@ app.post("/create", async (req, res) => {
     });
   }
 });
-
-app.post;
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -215,10 +181,8 @@ app.listen(PORT, () => {
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`📍 Create endpoint: http://localhost:${PORT}/create`);
   console.log(`📝 Environment variables loaded successfully`);
-  console.log(
-    `🔧 GameMoney Project ID: ${PROJECT_ID ? "✅ Set" : "❌ Missing"}`
-  );
-  console.log(`🔑 HMAC Key: ${HMAC_KEY ? "✅ Set" : "❌ Missing"}`);
+  console.log(`🔧 Kanyon Login: ${LOGIN ? "✅ Set" : "❌ Missing"}`);
+  console.log(`🔑 Kanyon TSP ID: ${TSP_ID ? "✅ Set" : "❌ Missing"}`);
   console.log(
     `🤖 Telegram Bot: ${process.env.BOT_TOKEN ? "✅ Set" : "❌ Missing"}`
   );
