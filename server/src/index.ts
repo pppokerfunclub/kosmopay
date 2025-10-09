@@ -64,30 +64,53 @@ app.post("/create", async (req, res) => {
     }
 
     // 1) Авторизация в Kanyon
-    const auth = await axios.post(`${IDENTITY}/public/login`, {
+    const authResponse = await axios.post(`${IDENTITY_API}/public/login`, {
       login: LOGIN,
       password: PASSWORD,
     });
-    const token = auth.data?.accessToken;
-    if (!token) throw new Error(`Auth failed: ${JSON.stringify(auth.data)}`);
 
+    const token = authResponse.data.accessToken;
     const headers = { "Authorization-Token": token };
-    const orderReq = {
-      merchantOrderId: `order-test-${Date.now()}`,
-      orderAmount: 123 * 100, 
+    const orderID = Math.floor(100 + Math.random() * 9000);
+
+    // 2) Создание заказа
+    const orderRequest = {
+      //tspId: parseInt(TSP_ID),
+      //paymentAmount: amount,
+      //orderCurrency: "RUB",
+      //paymentType: "IPS",
+      //description: `Пополнение аккаунта ${userId}`,
+      //callbackUrl: CALLBACK_URL,
+
+      
+      merchantOrderId: orderID.toString(),
+      orderAmount: amount * 100,
       orderCurrency: "RUB",
-      tspId: TSP_ID,
-      description: "test",
+      tspId: parseInt(TSP_ID),
+      description: `Пополнение ${userId}`,
       callbackUrl: CALLBACK_URL,
     };
-    const create = await axios.post(`${API}/order`, orderReq, { headers });
-    const orderId = create.data?.order?.id;
-    if (!orderId) throw new Error(`/order unexpected: ${JSON.stringify(create.data)}`);
 
-    
-    const qrc = await axios.post(`${API}/order/qrcData/${orderId}`, null, { headers });
-    const qrcId = qrc.data?.order?.qrcId;
-    if (!qrcId) throw new Error(`/order/qrcData unexpected: ${JSON.stringify(qrc.data)}`);
+    const createResponse = await axios.post(
+      `${PAYMENT_API}/order`,
+      orderRequest,
+      { headers }
+    );
+
+    const orderId = createResponse.data.order.id;
+
+    // 3) Получение QR кода
+    const qrcResponse = await axios.post(
+      `${PAYMENT_API}/order/qrcData/${orderId}`,
+      {},
+      { headers }
+    );
+
+    const qrcId = qrcResponse.data.order?.qrcId;
+
+    if (!qrcId || typeof qrcId !== "string" || !qrcId.trim()) {
+      throw new Error("Не удалось получить QR код");
+    }
 
     const qrUrl = `https://qr.nspk.ru/${qrcId.trim()}`;
 
