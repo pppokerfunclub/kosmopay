@@ -32,8 +32,9 @@ if (missingVars.length > 0) {
 const IDENTITY_API = "https://identity.authpoint.pro/api/v1";
 const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 
-const LOGIN = process.env.KANYON_LOGIN as string;
-const PASSWORD = process.env.KANYON_PASSWORD as string;
+//const LOGIN = process.env.KANYON_LOGIN as string;
+const LOGIN = "mmm031189@gmail.com"
+const PASSWORD = "beVu93sm" //process.env.KANYON_PASSWORD as string;
 const TSP_ID = Number(process.env.KAN_TSP_ID);
 const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
@@ -69,7 +70,7 @@ app.post("/create", async (req, res) => {
 
     const token = authResponse.data.accessToken;
     const headers = { "Authorization-Token": token };
-    const orderID = Math.floor(100000 + Math.random() * 900000);
+    const orderID = Math.floor(100 + Math.random() * 9000);
 
     // 2) Создание заказа
     const orderRequest = {
@@ -85,9 +86,8 @@ app.post("/create", async (req, res) => {
       orderAmount: amount * 100,
       orderCurrency: "RUB",
       tspId: parseInt(TSP_ID),
-      description: `Пополнение аккаунта ${userId}`,
+      description: `Пополнение ${userId}`,
       callbackUrl: CALLBACK_URL,
-    };
 
     const createResponse = await axios.post(
       `${PAYMENT_API}/order`,
