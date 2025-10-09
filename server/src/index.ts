@@ -69,13 +69,22 @@ app.post("/create", async (req, res) => {
 
     const token = authResponse.data.accessToken;
     const headers = { "Authorization-Token": token };
+    const orderID = Math.floor(100000 + Math.random() * 900000);
 
     // 2) Создание заказа
     const orderRequest = {
-      tspId: parseInt(TSP_ID),
-      paymentAmount: amount * 100,
+      //tspId: parseInt(TSP_ID),
+      //paymentAmount: amount,
+      //orderCurrency: "RUB",
+      //paymentType: "IPS",
+      //description: `Пополнение аккаунта ${userId}`,
+      //callbackUrl: CALLBACK_URL,
+
+      
+      merchantOrderId: parseInt(orderID.toString()),
+      orderAmount: amount,
       orderCurrency: "RUB",
-      paymentType: "IPS",
+      tspId: parseInt(TSP_ID),
       description: `Пополнение аккаунта ${userId}`,
       callbackUrl: CALLBACK_URL,
     };
