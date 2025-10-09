@@ -32,9 +32,9 @@ if (missingVars.length > 0) {
 const IDENTITY_API = "https://identity.authpoint.pro/api/v1";
 const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 
-const LOGIN = "mmm031189@gmail.com"; //process.env.KANYON_LOGIN as string;
-const PASSWORD = "beVu93sm"; //process.env.KANYON_PASSWORD as string;
-const TSP_ID = 1543; //Number(process.env.KANYON_TSP_ID);
+const LOGIN = process.env.KANYON_LOGIN as string;
+const PASSWORD = process.env.KANYON_PASSWORD as string;
+const TSP_ID = process.env.KANYON_TSP_ID as string;
 const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
 // Middleware
@@ -53,62 +53,49 @@ app.post("/create", async (req, res) => {
   try {
     const { userId, email, amount } = req.body;
 
+    // Валидация данных
     if (!userId || !email || !amount || amount < 1000) {
       return res.status(400).json({
         error: "Неверные данные",
-        message:
-          "Поля userId, email и amount обязательны. Минимальная сумма — 1000.",
+        message: "Требуются: userId, email, amount (минимум 1000)",
       });
     }
 
-    const LOGIN = "mmm031189@gmail.com";
-    const PASSWORD = "beVu93sm";
-    const TSP_ID = 1543;
-    const CALLBACK_URL =
-      "https://webhook.site/85a9447c-428e-4cd5-a493-1464314396c4";
-    const IDENTITY = "https://identity.authpoint.pro/api/v1";
-    const API = "https://pay.kanyon.pro/api/v1";
-
-    // Авторизация
-    const authResp = await axios.post(`${IDENTITY}/public/login`, {
+    // 1) Авторизация в Kanyon
+    const authResponse = await axios.post(`${IDENTITY_API}/public/login`, {
       login: LOGIN,
       password: PASSWORD,
     });
 
-    const token = authResp.data?.accessToken;
-    if (!token) throw new Error(`Auth failed: ${JSON.stringify(authResp.data)}`);
-    console.log("✅ Получен токен");
-
+    const token = authResponse.data.accessToken;
     const headers = { "Authorization-Token": token };
 
-    const orderReq = {
-      
-      merchantOrderId: "1kswkwkw",
-      orderAmount: 100*amount,
+    // 2) Создание заказа
+    const orderRequest = {
+      merchantOrderId: `order-${userId}-${Date.now()}`,
+      orderAmount: amount * 100,
       orderCurrency: "RUB",
-      tspId: TSP_ID,
-      description: "comment",
-      callbackUrl: "callback.com"
+      tspId: parseInt(TSP_ID),
+      description: `Пополнение аккаунта ${userId}`,
+      callbackUrl: CALLBACK_URL,
     };
 
+    const createResponse = await axios.post(
+      `${PAYMENT_API}/order`,
+      orderRequest,
+      { headers }
+    );
 
-    const createResp = await axios.post(`${API}/order`, orderReq, { headers });
-    console.log("CREATE RESP:", createResp.data);
+    const orderId = createResponse.data.order.id;
 
-    const orderId = createResp.data?.order?.id;
-    if (!orderId)
-      throw new Error(`/order unexpected: ${JSON.stringify(createResp.data)}`);
-    console.log("ORDER_ID:", orderId);
-
-    // Получение QRC
-    const qrcResp = await axios.post(
-      `${API}/order/qrcData/${orderId}`,
+    // 3) Получение QR кода
+    const qrcResponse = await axios.post(
+      `${PAYMENT_API}/order/qrcData/${orderId}`,
       null,
       { headers }
     );
-    console.log("QRC RESP:", qrcResp.data);
 
-    const qrcId = qrcResp.data?.order?.qrcId;
+    const qrcId = qrcResponse.data.order?.qrcId;
 
     if (!qrcId || typeof qrcId !== "string" || !qrcId.trim()) {
       throw new Error("Не удалось получить QR код");
@@ -141,13 +128,13 @@ app.post("/create", async (req, res) => {
     );
 
     // Возвращаем URL для редиректа
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       url: qrUrl,
       orderId: orderId,
       status: "okay",
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Kanyon payment error:", error);
     res.status(500).json({
       status: "error",
