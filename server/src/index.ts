@@ -82,12 +82,13 @@ app.post("/create", async (req, res) => {
     const headers = { "Authorization-Token": token };
 
     const orderReq = {
-      tspId: 1543,
-      orderAmount: 100000,
+      
+      merchantOrderId: "1kswkwkw",
+      orderAmount: 100*amount,
       orderCurrency: "RUB",
-      paymentType: "IPS",
-      description: "Пополнение аккаунта 1111111",
-      callbackUrl: "https://kosmoapp.net/api/payments/callback"
+      tspId: TSP_ID,
+      description: "comment",
+      callbackUrl: "callback.com"
     };
 
 
