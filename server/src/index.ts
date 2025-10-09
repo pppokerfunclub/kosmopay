@@ -81,15 +81,15 @@ app.post("/create", async (req, res) => {
 
     const headers = { "Authorization-Token": token };
 
-    // Создание заказа
     const orderReq = {
-      merchantOrderId: Math.floor(100000 + Math.random() * 900000).toString(),
-      orderAmount: amount * 100, // копейки
+      tspId: 1543,
+      orderAmount: 100000,
       orderCurrency: "RUB",
-      tspId: TSP_ID,
-      description: `Пополнение аккаунта ${userId}`,
-      callbackUrl: CALLBACK_URL,
+      paymentType: "IPS",
+      description: "Пополнение аккаунта 1111111",
+      callbackUrl: "https://kosmoapp.net/api/payments/callback"
     };
+
 
     const createResp = await axios.post(`${API}/order`, orderReq, { headers });
     console.log("CREATE RESP:", createResp.data);
