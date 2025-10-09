@@ -32,11 +32,9 @@ if (missingVars.length > 0) {
 const IDENTITY_API = "https://identity.authpoint.pro/api/v1";
 const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 
-//const LOGIN = process.env.KANYON_LOGIN as string;
-const LOGIN = "mmm031189@gmail.com"
-const PASSWORD = "beVu93sm" //process.env.KANYON_PASSWORD as string;
-//const TSP_ID = Number(process.env.KAN_TSP_ID);
-const TSP_ID = 1543;
+const LOGIN = process.env.KANYON_LOGIN as string;
+const PASSWORD = process.env.KANYON_PASSWORD as string;
+const TSP_ID = Number(process.env.KAN_TSP_ID);
 const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
 // Middleware
