@@ -61,50 +61,43 @@ app.post("/create", async (req, res) => {
       });
     }
 
-    // 1) Авторизация в Kanyon
-    const authResponse = await axios.post(`${IDENTITY_API}/public/login`, {
-      login: LOGIN,
-      password: PASSWORD,
-    });
+    const LOGIN = "mmm031189@gmail.com";
+    const PASSWORD = "beVu93sm";
+    const TSP_ID = 1543;
+    const CALLBACK_URL = "https://webhook.site/85a9447c-428e-4cd5-a493-1464314396c4";
+    
+    const IDENTITY = "https://identity.authpoint.pro/api/v1";
+    const API = "https://pay.kanyon.pro/api/v1";
 
-    const token = authResponse.data.accessToken;
-    const headers = { "Authorization-Token": token };
-    const orderID = Math.floor(100 + Math.random() * 9000);
-
-    // 2) Создание заказа
-    const orderRequest = {
-      //tspId: parseInt(TSP_ID),
-      //paymentAmount: amount,
-      //orderCurrency: "RUB",
-      //paymentType: "IPS",
-      //description: `Пополнение аккаунта ${userId}`,
-      //callbackUrl: CALLBACK_URL,
-
-      
-      merchantOrderId: orderID.toString(),
-      orderAmount: amount * 100,
-      orderCurrency: "RUB",
-      tspId: parseInt(TSP_ID),
-      description: `Пополнение`,
-      callbackUrl: CALLBACK_URL,
-    };
-
-    const createResponse = await axios.post(
-      `${PAYMENT_API}/order`,
-      orderRequest,
-      { headers }
-    );
-
-    const orderId = createResponse.data.order.id;
-
-    // 3) Получение QR кода
-    const qrcResponse = await axios.post(
-      `${PAYMENT_API}/order/qrcData/${orderId}`,
-      {},
-      { headers }
-    );
-
-    const qrcId = qrcResponse.data.order?.qrcId;
+    try {
+      const authResp = await axios.post(`${IDENTITY}/public/login`, {
+        login: LOGIN,
+        password: PASSWORD,
+      });
+      const token: string | undefined = authResp.data?.accessToken;
+      if (!token) throw new Error(`Auth failed: ${JSON.stringify(authResp.data)}`);
+      console.log("✅ Получен токен");
+  
+      const headers = { "Authorization-Token": token };
+  
+      const orderReq = {
+        merchantOrderId: "merchantOrderId001",
+        orderAmount: 100000,
+        orderCurrency: "RUB",
+        tspId: TSP_ID,
+        description: "comment",
+        callbackUrl: CALLBACK_URL,
+      };
+  
+      const createResp = await axios.post(`${API}/order`, orderReq, { headers });
+      console.log("CREATE RESP:", createResp.data);
+  
+      const orderId: string | undefined = createResp.data?.order?.id;
+      if (!orderId) throw new Error(`/order unexpected: ${JSON.stringify(createResp.data)}`);
+      console.log("ORDER_ID:", orderId);
+  
+      const qrcResp = await axios.post(`${API}/order/qrcData/${orderId}`, null, { headers });
+      const qrcId: string | undefined = qrcResp.data?.order?.qrcId;
 
     if (!qrcId || typeof qrcId !== "string" || !qrcId.trim()) {
       throw new Error("Не удалось получить QR код");
