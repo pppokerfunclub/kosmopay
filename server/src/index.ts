@@ -88,6 +88,7 @@ app.post("/create", async (req, res) => {
       tspId: parseInt(TSP_ID),
       description: `Пополнение ${userId}`,
       callbackUrl: CALLBACK_URL,
+    {
 
     const createResponse = await axios.post(
       `${PAYMENT_API}/order`,
