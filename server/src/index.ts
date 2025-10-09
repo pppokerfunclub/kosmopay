@@ -82,7 +82,7 @@ app.post("/create", async (req, res) => {
 
       
       merchantOrderId: parseInt(orderID.toString()),
-      orderAmount: amount,
+      orderAmount: amount * 100,
       orderCurrency: "RUB",
       tspId: parseInt(TSP_ID),
       description: `Пополнение аккаунта ${userId}`,
