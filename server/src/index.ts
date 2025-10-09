@@ -34,7 +34,7 @@ const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 
 const LOGIN = process.env.KANYON_LOGIN as string;
 const PASSWORD = process.env.KANYON_PASSWORD as string;
-const TSP_ID = process.env.KANYON_TSP_ID as string;
+const TSP_ID = Number(process.env.KAN_TSP_ID);
 const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
 // Middleware
@@ -81,7 +81,7 @@ app.post("/create", async (req, res) => {
       //callbackUrl: CALLBACK_URL,
 
       
-      merchantOrderId: parseInt(orderID.toString()),
+      merchantOrderId: orderID.toString(),
       orderAmount: amount * 100,
       orderCurrency: "RUB",
       tspId: parseInt(TSP_ID),
