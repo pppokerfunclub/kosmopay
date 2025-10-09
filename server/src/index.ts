@@ -32,9 +32,9 @@ if (missingVars.length > 0) {
 const IDENTITY_API = "https://identity.authpoint.pro/api/v1";
 const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 
-const LOGIN = "mmm031189@gmail.com"//process.env.KANYON_LOGIN as string;
-const PASSWORD = "beVu93sm"//process.env.KANYON_PASSWORD as string;
-const TSP_ID = 1543 //Number(process.env.KAN_TSP_ID);
+const LOGIN = "mmm031189@gmail.com"; //process.env.KANYON_LOGIN as string;
+const PASSWORD = "beVu93sm"; //process.env.KANYON_PASSWORD as string;
+const TSP_ID = 1543; //Number(process.env.KANYON_TSP_ID);
 const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
 // Middleware
@@ -56,14 +56,16 @@ app.post("/create", async (req, res) => {
     if (!userId || !email || !amount || amount < 1000) {
       return res.status(400).json({
         error: "Неверные данные",
-        message: "Поля userId, email и amount обязательны. Минимальная сумма — 1000.",
+        message:
+          "Поля userId, email и amount обязательны. Минимальная сумма — 1000.",
       });
     }
 
     const LOGIN = "mmm031189@gmail.com";
     const PASSWORD = "beVu93sm";
     const TSP_ID = 1543;
-    const CALLBACK_URL = "https://webhook.site/85a9447c-428e-4cd5-a493-1464314396c4";
+    const CALLBACK_URL =
+      "https://webhook.site/85a9447c-428e-4cd5-a493-1464314396c4";
     const IDENTITY = "https://identity.authpoint.pro/api/v1";
     const API = "https://pay.kanyon.pro/api/v1";
 
@@ -93,26 +95,19 @@ app.post("/create", async (req, res) => {
     console.log("CREATE RESP:", createResp.data);
 
     const orderId = createResp.data?.order?.id;
-    if (!orderId) throw new Error(`/order unexpected: ${JSON.stringify(createResp.data)}`);
+    if (!orderId)
+      throw new Error(`/order unexpected: ${JSON.stringify(createResp.data)}`);
     console.log("ORDER_ID:", orderId);
 
     // Получение QRC
-    const qrcResp = await axios.post(`${API}/order/qrcData/${orderId}`, null, { headers });
+    const qrcResp = await axios.post(
+      `${API}/order/qrcData/${orderId}`,
+      null,
+      { headers }
+    );
     console.log("QRC RESP:", qrcResp.data);
 
     const qrcId = qrcResp.data?.order?.qrcId;
-
-    return res.json({
-      success: true,
-      orderId,
-      qrcId,
-    });
-  } catch (err) {
-    console.error("Ошибка при создании:", err.response?.data || err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 
     if (!qrcId || typeof qrcId !== "string" || !qrcId.trim()) {
       throw new Error("Не удалось получить QR код");
@@ -145,13 +140,13 @@ app.post("/create", async (req, res) => {
     );
 
     // Возвращаем URL для редиректа
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       url: qrUrl,
       orderId: orderId,
       status: "okay",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Kanyon payment error:", error);
     res.status(500).json({
       status: "error",
