@@ -2,7 +2,12 @@ import fs from "fs";
 import path from "path";
 
 const FILE_PATH = path.join(__dirname, "orders.json");
-//ye
+
+interface Order {
+  orderId: string;
+  status?: string;
+  [key: string]: any; // позволяет хранить любые дополнительные поля
+}
 
 function ensureFile() {
   if (!fs.existsSync(FILE_PATH)) {
@@ -10,8 +15,7 @@ function ensureFile() {
   }
 }
 
-
-export function readOrders() {
+export function readOrders(): Order[] {
   ensureFile();
   const raw = fs.readFileSync(FILE_PATH, "utf-8");
   try {
@@ -23,28 +27,24 @@ export function readOrders() {
   }
 }
 
-
-function writeOrders(orders: any[]) {
+function writeOrders(orders: Order[]): void {
   fs.writeFileSync(FILE_PATH, JSON.stringify({ orders }, null, 2), "utf-8");
 }
 
-
-export function addOrder(order: any) {
+export function addOrder(order: Order): void {
   const orders = readOrders();
   orders.push(order);
   writeOrders(orders);
 }
 
-
-export function getOrderById(orderId: string) {
+export function getOrderById(orderId: string): Order | null {
   const orders = readOrders();
-  return orders.find((o) => o.orderId === orderId) || null;
+  return orders.find((o: Order) => o.orderId === orderId) || null;
 }
 
-
-export function updateOrderStatus(orderId: string, status: string) {
+export function updateOrderStatus(orderId: string, status: string): Order | null {
   const orders = readOrders();
-  const index = orders.findIndex((o) => o.orderId === orderId);
+  const index = orders.findIndex((o: Order) => o.orderId === orderId);
   if (index !== -1) {
     orders[index].status = status;
     writeOrders(orders);
