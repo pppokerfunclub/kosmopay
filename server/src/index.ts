@@ -5,6 +5,8 @@ import helmet from "helmet";
 import axios from "axios";
 import { bot } from "./bot";
 import { payments } from "./routes/payments";
+import { addOrder, getOrderById } from "./jsonStorage";
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -112,22 +114,16 @@ app.post("/create", async (req, res) => {
       timestamp: new Date().toISOString(),
     });
 
-    // Отправляем уведомление в Telegram
-    await bot.api.sendMessage(
-      process.env.BOT_CHAT_ID as string,
-      `
-<b>Попытка оплаты Kanyon</b>
+    addOrder({
+      orderId,
+      userId,
+      email,
+      amount,
+      qrcId,
+      status: "created",
+      createdAt: new Date().toISOString(),
+    });
 
-<b>Order ID:</b> #${orderId}
-<b>QR ID:</b> <code>${qrcId}</code>
-<b>Логин:</b> ${userId}
-<b>Email:</b> ${email}
-<b>Сумма:</b> ${amount} RUB
-      `,
-      { parse_mode: "HTML" }
-    );
-
-    // Возвращаем URL для редиректа
     res.status(200).json({
       success: true,
       url: qrUrl,
@@ -151,6 +147,14 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.get("/order/:orderId", (req, res) => {
+  const { orderId } = req.params;
+  const order = getOrderById(orderId);
+  if (!order) return res.status(404).json({ error: "Order not found" });
+  res.json(order);
+});
+
 
 // Error handling middleware
 app.use(
