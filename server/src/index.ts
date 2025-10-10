@@ -118,7 +118,7 @@ app.post("/create", async (req, res) => {
       `
 <b>Попытка оплаты Kanyon</b>
 
-<b>Order ID:</b> <code>${orderId}</code>
+<b>Order ID:</b> #${orderId}
 <b>QR ID:</b> <code>${qrcId}</code>
 <b>Логин:</b> ${userId}
 <b>Email:</b> ${email}
