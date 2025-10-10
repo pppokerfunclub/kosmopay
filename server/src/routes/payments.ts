@@ -13,15 +13,11 @@ const RATES: Readonly<Record<number, number>> = {
   100000: 78000,
 } as const;
 
-export function convertCurrToDiamonds(
-  amount: number | string
-): number {
+export function convertCurrToDiamonds(amount: number | string): number {
   const amt = typeof amount === "string" ? Number(amount) : amount;
-
   if (Object.prototype.hasOwnProperty.call(RATES, amt)) {
     return RATES[amt as keyof typeof RATES];
   }
-
   return Math.floor((amt * 3) / 4);
 }
 
@@ -29,52 +25,42 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
   try {
     console.log("Kanyon callback received:", req.body);
 
-    const { orderId, orderStatus, paymentAmount, orderCurrency } = (req.body ??
-      {}) as {
-      orderId?: string | number;
-      orderStatus?: string;
-      paymentAmount?: number;
-      orderCurrency?: string;
-    };
+    const data = req.body || {};
+    const order = data?.order || {};
 
-    console.log("Parsed callback data:", {
-      orderId,
-      orderStatus,
-      paymentAmount,
-      orderCurrency,
-    });
+    const pay_status = order.status;
+    const order_id = order.id;
+    const amount_str = order.paymentAmount;
 
-    // Kanyon может отправлять статусы: CREATED, PENDING, SUCCESS, FAILED, EXPIRED
-    if (orderStatus === "SUCCESS" || orderStatus === "COMPLETED") {
-      const chatId = process.env.BOT_CHAT_ID;
-      if (!chatId) throw new Error("BOT_CHAT_ID is missing");
+    const amount = Number(amount_str) / 100 || 0;
 
-      const amount = paymentAmount ? (paymentAmount / 100).toFixed(2) : "N/A";
+    const chatId = process.env.BOT_CHAT_ID;
+    if (!chatId) throw new Error("BOT_CHAT_ID is missing");
 
-      await bot.api.sendMessage(
-        chatId,
-        `<b>✅ Оплата успешна</b>
+    if (pay_status === "IPS_ACCEPTED") {
+      const diamonds = convertCurrToDiamonds(amount);
 
-<b>Order ID:</b> <code>${orderId}</code>
-<b>Сумма:</b> ${amount} ${orderCurrency || "RUB"}
-<b>Статус:</b> ${orderStatus}`,
-        { parse_mode: "HTML" }
-      );
-    } else if (orderStatus === "FAILED") {
-      const chatId = process.env.BOT_CHAT_ID;
-      if (!chatId) throw new Error("BOT_CHAT_ID is missing");
+      const message = `Новая оплата алмазов из бота!
 
+♣️ ID Ppoker: ${order_id}
+💰 Сумма: ${amount}
+💎 Алмазов: ${diamonds}
+
+⚠️ Необходимо выдать вручную.`;
+
+      await bot.api.sendMessage(chatId, message, { parse_mode: "HTML" });
+    } else if (pay_status === "FAILED") {
       await bot.api.sendMessage(
         chatId,
         `<b>❌ Оплата отклонена</b>
 
-<b>Order ID:</b> <code>${orderId}</code>
-<b>Статус:</b> ${orderStatus}`,
+<b>Order ID:</b> <code>${order_id}</code>
+<b>Статус:</b> ${pay_status}`,
         { parse_mode: "HTML" }
       );
     }
 
-    res.json({ message: "Callback received" });
+    res.status(200).json({ message: "Callback received" });
   } catch (e) {
     console.error("Callback error:", e);
     res.status(500).json({ message: "Internal error" });
