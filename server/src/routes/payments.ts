@@ -1,3 +1,4 @@
+import { getOrderById, updateOrderStatus } from "../jsonStorage";
 import { Router, type Request, type Response } from "express";
 import { bot } from "../bot";
 
@@ -34,6 +35,18 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
 
     const amount = Number(amount_str) / 100 || 0;
 
+    // Достаём заказ из JSON
+    const savedOrder = getOrderById(order_id);
+
+    if (!savedOrder) {
+      console.warn(`⚠️ Заказ ${order_id} не найден в orders.json`);
+    } else {
+      console.log("💾 Найден заказ:", savedOrder);
+    }
+
+    // Обновляем статус (created → paid/failed)
+    updateOrderStatus(order_id, pay_status);
+
     const chatId = process.env.BOT_CHAT_ID;
     if (!chatId) throw new Error("BOT_CHAT_ID is missing");
 
@@ -42,12 +55,12 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
 
       const message = `<b>Новая оплата алмазов из сайта!</b>
 
-♣️ ID платежа: #${order_id}
-💰 Сумма: ${amount}
-💎 Алмазов: ${diamonds}
+<b>♣️ ID Ppoker</b> ${savedOrder?.userId || "Неизвестен"}
+<b>📪 Почта:</b> ${savedOrder?.email || "—"}
+<b>💰 Сумма:</b> ${amount} RUB
+<b>💎 Алмазов:</b> ${diamonds}
 
-⚠️ Необходимо выдать вручную.
-⚠️ Данные вы можете найти выше нажав на айди`;
+⚠️ Необходимо выдать вручную.`;
 
       await bot.api.sendMessage(chatId, message, { parse_mode: "HTML" });
     } else if (pay_status === "FAILED") {
@@ -61,7 +74,7 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
       );
     }
 
-    res.status(200).json({ message: "Callback received" });
+    res.status(200).json({ message: "Callback processed successfully" });
   } catch (e) {
     console.error("Callback error:", e);
     res.status(500).json({ message: "Internal error" });
