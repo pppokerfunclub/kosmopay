@@ -40,7 +40,7 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
     if (pay_status === "IPS_ACCEPTED") {
       const diamonds = convertCurrToDiamonds(amount);
 
-      const message = `Новая оплата алмазов из бота!
+      const message = `<b>Новая оплата алмазов из сайта!</b>
 
 ♣️ ID Ppoker: ${order_id}
 💰 Сумма: ${amount}
