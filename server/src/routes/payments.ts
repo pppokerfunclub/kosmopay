@@ -42,11 +42,12 @@ payments.post("/api/payments/callback", async (req: Request, res: Response) => {
 
       const message = `<b>Новая оплата алмазов из сайта!</b>
 
-♣️ ID Ppoker: ${order_id}
+♣️ ID платежа: #${order_id}
 💰 Сумма: ${amount}
 💎 Алмазов: ${diamonds}
 
-⚠️ Необходимо выдать вручную.`;
+⚠️ Необходимо выдать вручную.
+⚠️ Данные вы можете найти выше нажав на айди`;
 
       await bot.api.sendMessage(chatId, message, { parse_mode: "HTML" });
     } else if (pay_status === "FAILED") {
