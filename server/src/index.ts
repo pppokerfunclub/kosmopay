@@ -37,7 +37,7 @@ const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
 const LOGIN = process.env.KANYON_LOGIN as string;
 const PASSWORD = process.env.KANYON_PASSWORD as string;
 const TSP_ID = process.env.KANYON_TSP_ID as string;
-const CALLBACK_URL = `${process.env.API_URL}api/payments/callback`;
+const CALLBACK_URL = `${process.env.BASE_URL}api/payments/callback`;
 
 // Middleware
 app.use(helmet());
