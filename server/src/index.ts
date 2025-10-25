@@ -5,6 +5,8 @@ import helmet from "helmet";
 import axios from "axios";
 import { bot } from "./bot";
 import { payments } from "./routes/payments";
+import { addOrder, getOrderById } from "./jsonStorage";
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -120,6 +122,14 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.get("/order/:orderId", (req, res) => {
+  const { orderId } = req.params;
+  const order = getOrderById(orderId);
+  if (!order) return res.status(404).json({ error: "Order not found" });
+  res.json(order);
+});
+
 
 // Error handling middleware
 app.use(
