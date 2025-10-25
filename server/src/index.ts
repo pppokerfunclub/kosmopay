@@ -11,9 +11,7 @@ const PORT = process.env.PORT || 8080;
 
 // Проверяем переменные окружения
 const requiredEnvVars = [
-  "KANYON_LOGIN",
-  "KANYON_PASSWORD",
-  "KANYON_TSP_ID",
+  "PAY1TIME_TOKEN",
   "BOT_TOKEN",
   "BOT_CHAT_ID",
   "BASE_URL",
@@ -29,12 +27,7 @@ if (missingVars.length > 0) {
   process.exit(1);
 }
 
-const IDENTITY_API = "https://identity.authpoint.pro/api/v1";
-const PAYMENT_API = "https://pay.kanyon.pro/api/v1";
-
-const LOGIN = process.env.KANYON_LOGIN as string;
-const PASSWORD = process.env.KANYON_PASSWORD as string;
-const TSP_ID = process.env.KANYON_TSP_ID as string;
+const PAY1TIME_TOKEN = process.env.PAY1TIME_TOKEN as string;
 const CALLBACK_URL = `${process.env.BASE_URL}/api/payments/callback`;
 
 // Middleware
@@ -52,90 +45,66 @@ app.get("/", (req, res) => {
 app.post("/create", async (req, res) => {
   try {
     const { userId, email, amount } = req.body;
+    console.log(req.body);
 
     // Валидация данных
     if (!userId || !email || !amount || amount < 1000) {
       return res.status(400).json({
         error: "Неверные данные",
-        message: "Требуются: userId, email, amount (минимум 1000)",
+        message: "Требуются: login, email, amount (минимум 1000)",
       });
     }
 
-    // 1) Авторизация в Kanyon
-    const authResponse = await axios.post(`${IDENTITY_API}/public/login`, {
-      login: LOGIN,
-      password: PASSWORD,
-    });
+    const order_id = `steam_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
-    const token = authResponse.data.accessToken;
-    const headers = { "Authorization-Token": token };
-
-    // 2) Создание заказа
-    const orderRequest = {
-      merchantOrderId: `order-${userId}-${Date.now()}`,
-      orderAmount: amount * 100,
-      orderCurrency: "RUB",
-      tspId: parseInt(TSP_ID),
-      description: `Пополнение аккаунта ${userId}`,
-      callbackUrl: CALLBACK_URL,
+    const invoicePayload = {
+      payer_name: userId,
+      order_id: order_id,
+      payer_email: email,
+      callback_url: CALLBACK_URL,
+      return_url: `${process.env.BASE_URL}/payment/success`,
+      fail_url: `${process.env.BASE_URL}/payment/fail`,
+      merchant: {
+        name: "steam-payment",
+        url: "https://steam-payment.vercel.app",
+      },
+      amount: amount * 100,
     };
 
-    const createResponse = await axios.post(
-      `${PAYMENT_API}/order`,
-      orderRequest,
-      { headers }
+    const invoiceResponse = await axios.post(
+      "https://pay1time.com/api/invoice",
+      invoicePayload,
+      {
+        headers: {
+          Authorization: `Token:${PAY1TIME_TOKEN}`,
+        },
+      }
     );
 
-    const orderId = createResponse.data.order.id;
-
-    // 3) Получение QR кода
-    const qrcResponse = await axios.post(
-      `${PAYMENT_API}/order/qrcData/${orderId}`,
-      null,
-      { headers }
-    );
-
-    const qrcId = qrcResponse.data.order?.qrcId;
-
-    if (!qrcId || typeof qrcId !== "string" || !qrcId.trim()) {
-      throw new Error("Не удалось получить QR код");
-    }
-
-    const qrUrl = `https://qr.nspk.ru/${qrcId.trim()}`;
-
-    // Логируем успешный запрос
-    console.log("Payment created successfully:", {
-      orderId,
-      qrcId,
-      userId,
-      amount,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Отправляем уведомление в Telegram
     await bot.api.sendMessage(
       process.env.BOT_CHAT_ID as string,
       `
-<b>Попытка оплаты Kanyon</b>
+<b>Попытка оплаты</b>
 
-<b>Order ID:</b> <code>${orderId}</code>
-<b>QR ID:</b> <code>${qrcId}</code>
+<b>ID:</b> <code>${invoiceResponse.data.id}</code>
 <b>Логин:</b> ${userId}
-<b>Email:</b> ${email}
-<b>Сумма:</b> ${amount} RUB
+<b>Сумма:</b> ${invoiceResponse.data.amount / 100} RUB
       `,
-      { parse_mode: "HTML" }
+      {
+        parse_mode: "HTML",
+      }
     );
 
-    // Возвращаем URL для редиректа
+    const invoiceData = invoiceResponse.data;
+
     res.status(200).json({
       success: true,
-      url: qrUrl,
-      orderId: orderId,
-      status: "okay",
+      url: invoiceData.url,
     });
   } catch (error) {
-    console.error("Kanyon payment error:", error);
+    console.error("Payment error:", error);
     res.status(500).json({
       status: "error",
       message: "Ошибка платежа",
@@ -181,8 +150,7 @@ app.listen(PORT, () => {
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`📍 Create endpoint: http://localhost:${PORT}/create`);
   console.log(`📝 Environment variables loaded successfully`);
-  console.log(`🔧 Kanyon Login: ${LOGIN ? "✅ Set" : "❌ Missing"}`);
-  console.log(`🔑 Kanyon TSP ID: ${TSP_ID ? "✅ Set" : "❌ Missing"}`);
+  console.log(`🔧 Pay1Time Token: ${PAY1TIME_TOKEN ? "✅ Set" : "❌ Missing"}`);
   console.log(
     `🤖 Telegram Bot: ${process.env.BOT_TOKEN ? "✅ Set" : "❌ Missing"}`
   );
